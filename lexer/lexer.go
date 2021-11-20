@@ -33,6 +33,19 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+// peekChar is similar to readChar, except that it doesn't
+// move position and readPosition.
+// We only want to peek ahead in the input and not move
+// around in it, so we know what a call to readChar would
+// return.
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 // NextToken looks at the current character under examination and return a token
 // depending on which character it is.
 // Before returning the token we advance our pointers into the input
