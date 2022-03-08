@@ -2,6 +2,8 @@ package lexer
 
 import "monkey/token"
 
+// Lexer takes source code as input and output the tokens that represent the source code.
+// It will go through its input and output the next token it recognizes.
 type Lexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
