@@ -1,5 +1,7 @@
 package ast
 
+import "bytes"
+
 // Program is the root node of every AST our parser produces.
 // Every valid Monkey program is a series of statements.
 // These statements are contained in the Statements.
@@ -13,4 +15,14 @@ func (p *Program) TokenLiteral() string {
 	} else {
 		return ""
 	}
+}
+
+func (p *Program) String() string {
+	var out bytes.Buffer
+
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
 }
