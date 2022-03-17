@@ -46,11 +46,6 @@ const (
 	RETURN   = "RETURN"
 )
 
-type Token struct {
-	Type    TokenType
-	Literal string
-}
-
 var keywords = map[string]TokenType{
 	"fn":     FUNCTION,
 	"let":    LET,
@@ -61,10 +56,25 @@ var keywords = map[string]TokenType{
 	"return": RETURN,
 }
 
+// LookupIdent checks if a string is a keyword.
+// If it is not one of the specified keywords, then it is
+// a variable or function name.
 func LookupIdent(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
 
 	return IDENT
+}
+
+type Token struct {
+	Type    TokenType
+	Literal string
+}
+
+func NewToken(tokenType TokenType, ch byte) Token {
+	return Token{
+		Type:    tokenType,
+		Literal: string(ch),
+	}
 }
