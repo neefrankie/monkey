@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/token"
@@ -19,9 +18,12 @@ import (
 // if curToken doesn't give us enough information.
 type Parser struct {
 	l         *lexer.Lexer
+	errors    []string
 	curToken  token.Token
 	peekToken token.Token
-	errors    []string
+
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -32,15 +34,33 @@ func New(l *lexer.Lexer) *Parser {
 		errors:    []string{},
 	}
 
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.TRUE, p.parseBoolean)
+	p.registerPrefix(token.FALSE, p.parseBoolean)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.IF, p.parseIfExpression)
+
+	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.registerInfix(token.PLUS, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
+	p.registerInfix(token.SLASH, p.parseInfixExpression)
+	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(token.EQ, p.parseInfixExpression)
+	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
+	p.registerInfix(token.LT, p.parseInfixExpression)
+	p.registerInfix(token.GT, p.parseInfixExpression)
+
+	// Move 2 steps to get the curToken point the first token.
+	// This differs from lexer.Lexer initialization, which points
+	// current position to the first char with default primitive value.
 	p.nextToken()
 	p.nextToken()
 
 	return p
-}
-
-func (p *Parser) nextToken() {
-	p.curToken = p.peekToken
-	p.peekToken = p.l.NextToken()
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
@@ -63,65 +83,17 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
-func (p *Parser) parseStatement() ast.Statement {
-	switch p.curToken.Type {
-	case token.LET:
-		return p.parseLetStatement()
-
-	case token.RETURN:
-		return p.parseReturnStatement()
-
-	default:
-		return nil
-	}
+func (p *Parser) nextToken() {
+	p.curToken = p.peekToken
+	p.peekToken = p.l.NextToken()
 }
 
-// parseLetStatement constructs an *ast.LetStatement node
-// with the token it's currently sitting on.
-func (p *Parser) parseLetStatement() *ast.LetStatement {
-	stmt := &ast.LetStatement{
-		Token: p.curToken,
-	}
-
-	// Expects a token.IDENT token.
-	if !p.expectPeek(token.IDENT) {
-		return nil
-	}
-
-	// Construct an *ast.Identifier node.
-	// For x in let x = 5, it should be
-	// Token: {Type: token.IDENT, Literal: "x"}
-	stmt.Name = &ast.Identifier{
-		Token: p.curToken,
-		Value: p.curToken.Literal,
-	}
-
-	// Expects an equal sign.
-	if !p.expectPeek(token.ASSIGN) {
-		return nil
-	}
-
-	// TODO: we're skipping the expression until we encounter a semicolon
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-
-	return stmt
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
 }
 
-func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-	stmt := &ast.ReturnStatement{
-		Token:       p.curToken,
-		ReturnValue: nil,
-	}
-
-	p.nextToken()
-
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-
-	return stmt
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
@@ -144,16 +116,4 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.peekError(t)
 		return false
 	}
-}
-
-// Errors can be used to check if the parser encountered any errors.
-func (p *Parser) Errors() []string {
-	return p.errors
-}
-
-// peekError is used to add an error to errors when the type of
-// peekToken doesn't match the expression.
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
-	p.errors = append(p.errors, msg)
 }
