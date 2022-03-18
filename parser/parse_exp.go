@@ -206,7 +206,7 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	return &ast.CallExpression{
-		Token:     p.curToken,
+		Token:     p.curToken, // The (.
 		Function:  function,
 		Arguments: p.parseCallArguments(),
 	}

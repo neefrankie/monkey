@@ -510,6 +510,8 @@ func TestFunctionParameterParsing(t *testing.T) {
 }
 
 func TestCallExpressionParsing(t *testing.T) {
+	// add is an Identifier.
+	// When it comes to (, call parseCallExpression
 	input := "add(1, 2 * 3, 4 + 5);"
 
 	l := lexer.New(input)
@@ -525,6 +527,8 @@ func TestCallExpressionParsing(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmt is not ast.ExpressionStatement. got=%T", program.Statements[0])
 	}
+
+	t.Logf("program.Statements[0].Token: %v", stmt.Token)
 
 	exp, ok := stmt.Expression.(*ast.CallExpression)
 	if !ok {
