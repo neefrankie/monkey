@@ -33,6 +33,12 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
+
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
+
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	}
 
 	return nil
