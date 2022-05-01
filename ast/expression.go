@@ -3,7 +3,6 @@ package ast
 import (
 	"bytes"
 	"monkey/token"
-	"strings"
 )
 
 // Identifier holds the identifier in a binding like x
@@ -135,34 +134,6 @@ func (ie *IfExpression) String() string {
 		out.WriteString("else")
 		out.WriteString(ie.Alternative.String())
 	}
-
-	return out.String()
-}
-
-type CallExpression struct {
-	Token     token.Token
-	Function  Expression
-	Arguments []Expression
-}
-
-func (ce *CallExpression) expressionNode() {}
-
-func (ce *CallExpression) TokenLiteral() string {
-	return ce.Token.Literal
-}
-
-func (ce *CallExpression) String() string {
-	var out bytes.Buffer
-
-	var args []string
-	for _, a := range ce.Arguments {
-		args = append(args, a.String())
-	}
-
-	out.WriteString(ce.Function.String())
-	out.WriteString("(")
-	out.WriteString(strings.Join(args, ", "))
-	out.WriteString(")")
 
 	return out.String()
 }
