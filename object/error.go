@@ -5,7 +5,7 @@ type Error struct {
 }
 
 func (e *Error) Type() Type {
-	return ERROR_OBJECT
+	return ERROR_OBJ
 }
 
 func (e *Error) Inspect() string {
