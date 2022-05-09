@@ -37,6 +37,21 @@ func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
 }
 
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (sl *StringLiteral) expressionNode() {}
+
+func (sl *StringLiteral) TokenLiteral() string {
+	return sl.Token.Literal
+}
+
+func (sl *StringLiteral) String() string {
+	return sl.Token.Literal
+}
+
 // PrefixExpression holds prefix operators.
 // There are two prefix operator in the Monkey programming language:
 // ! and -:
