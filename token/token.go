@@ -33,6 +33,7 @@ const (
 	RBRACE   TokenType = "}"
 	LBRACKET TokenType = "["
 	RBRACKET TokenType = "]"
+	COLON    TokenType = ":"
 
 	// IDENT is an identifiers + literals
 	IDENT TokenType = "IDENT"
