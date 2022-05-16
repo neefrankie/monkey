@@ -1,5 +1,7 @@
 # The Monkey Language
 
+This is an interpreter written in Go, as described in an interesting book [Writing An Interpreter In Go](https://interpreterbook.com/)
+
 The language looks like this:
 
 ```
